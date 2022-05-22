@@ -9,11 +9,13 @@ exports.getWeather= async (req,res,next)=>{
 
     console.log(params)
 
-    if(params["lat"]){
+    if(params["lat"] && params["lon"]){
         getWeatherFromCoordinates(params,(err,data)=>{
             if (err!=null){
                 //throw error
+               return res.json({err},500)
             }
+            
             res.send(JSON.parse(data.body))
         })
     }
@@ -26,7 +28,9 @@ exports.getWeather= async (req,res,next)=>{
         })
     }
     else {
-        res.sendStatus(418)
+        // res.sendStatus(418)
+        res.json({err: 'Expected param zip | [lon, lat]'},400)
+        return
     }
 
 
@@ -59,8 +63,9 @@ function getWeatherFromZipCode(params,nextFunction){
 function getWeatherFromCoordinates(params,next){
 
 
-    var lat = params.getNamedItem("lat")
-    var lon = params.getNamedItem("lon")
+    var lat = params["lat"]
+    var lon = params["lon"]
+    if(isNaN(lat) || isNaN(lon) ){ return next('lat | lon must be number')}
     let options = {
         url: "https://api.openweathermap.org/data/2.5/weather",
         method: 'GET',
@@ -88,7 +93,7 @@ exports.getWeatherInfoFromCode=async (req,res)=>{
     weather.getWeatherFromCode(code,isDayTime,(err,data)=>
     {
         if (err!==null){
-            res.send({err:err.toString()})
+            res.json({err})
             return
         }
         res.send(data)
