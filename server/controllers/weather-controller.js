@@ -48,7 +48,7 @@ function getWeatherFromZipCode(params){
     return new Promise((yay,nay)=>{
         var zipcode = params["zip"]
         if(isNaN(zipcode) ){return nay({message: 'zip must be a number',code:400})}
-       // if(zipcode.length !==4){return nay({message: 'zip must be 4 digits long, sorry',code:400})}
+       // if(zipcode.length !==4){return nay({message: 'zip must be 4 digits long',code:400})}
 
         var countrycode = params["countrycode"]||"ZA"
         if(!isNaN(countrycode)){return nay({message: 'country code must be text', code:400})}
@@ -117,7 +117,7 @@ exports.getWeatherInfoFromCode=async (req,res)=>{
     weather.getWeatherFromCode(code,isDayTime,(err,data)=>
     {
         if (err){
-            res.json({err})
+            res.status(500).json({err})
             return
         }
         res.send(data)
