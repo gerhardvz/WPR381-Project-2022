@@ -4,35 +4,47 @@ import {Link, useLocation} from 'react-router-dom';
 const CurrentWeather = () => {
 
     const location = useLocation();
-
+    const [isFahrenheit, setChecked] = React.useState(false);
     // This is how you can get the zipcode:
     // location.state.userZipcode
 
     // Example method of getting data from API, and sending data:
     const fetchData = async ()=>{
-        const reply = await fetch('/api',{
-            method: "POST",
-            headers: {
-              'Accept': 'application/json',
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({clientData: "World"})
-        })
-        const jsonReply = await reply.json()
 
-        //Look in the browser console to see the results!
-        console.log(jsonReply);
+        if (location.state!=undefined){
+            //Data been passed through
+            var unit = "metric"
+            var userLocation = location.state.userLocation
+            var zipLocation = location.state.userZipcode
+
+            let url = new URL('/api/weather','http://'+window.location.host)
+            url.host = window.location.host
+            url.pathname = '/api/weather'
+            url.port = window.location.port
+
+            isFahrenheit?unit="imperial":unit="metric"
+
+            if (zipLocation!=undefined){
+                url.search = new URLSearchParams({zip:zipLocation,unit:unit}).toString();
+            }
+            else if (userLocation!=undefined){
+                url.search = new URLSearchParams({lat:userLocation.lat, long:userLocation.lon,unit:unit}).toString();
+            }
+
+           const reply = await fetch(url)
+            const jsonReply = await reply.json()
+            console.log(jsonReply)
+        }
+
     }
     fetchData()
 
-    const [checked, setChecked] = React.useState(false);
+
     
     const handleChange = () => {
-        setChecked(!checked);
+        setChecked(!isFahrenheit);
 
-        if(checked === true) {
-            // code to change temp to fahrenheit
-        }
+
     };
     return ( 
         <div>
@@ -42,8 +54,9 @@ const CurrentWeather = () => {
             <div className='tempUnit'>
                 <Checkbox
                     label="Temperature in Fahrenheit"
-                    value={checked}
+                    value={isFahrenheit}
                     onChange={handleChange}
+                    name = "isFahrenheit"
                 />
             </div>
             <div className='weatherCardContainer'>
