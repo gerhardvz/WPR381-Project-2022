@@ -1,11 +1,32 @@
-import * as React from 'react';
-import {Link} from 'react-router-dom';
+//import * as React from 'react';
+import {Link, useHistory} from 'react-router-dom';
+import React, {useState, useEffect, useRef} from 'react';
 
 const Home = () => {
-    const [checked, setChecked] = React.useState(false);
+    const [zipcode, setZipcode] = useState();
+    const zipcodeRef = useRef()
+
+    const [zipcodePlaceholder, setPlaceholder] = useState('Enter zipcode...');
+    const history = useHistory();
     const handelClick = () => {
-        // code to check if zip is valid
+        const userZipcode = zipcodeRef.current.value;
+
+        //Checks if zipcode is 4 characters long, and is only decimals
+        if(/^([0-9]){4,4}$/.test(userZipcode)){
+            setZipcode(userZipcode)
+            history.push({
+                pathname: '/current',
+                state: { test : zipcode }
+              })
+
+        }else{
+            setPlaceholder(`'${userZipcode}' is an invalid zipcode...`);
+        }
+
+        zipcodeRef.current.value = null
     };
+
+    const [checked, setChecked] = React.useState(false);
 
     const handleChange = () => {
         setChecked(!checked);
@@ -13,8 +34,9 @@ const Home = () => {
         if(checked === true) {
             // code to use current zip code
         }
-    };
-      
+    };   
+
+    //
     return ( 
         <div className='home'>
             <div className='header'>
@@ -26,10 +48,11 @@ const Home = () => {
             <div className='zipcodeInput'>
                 <input
                     type='text'
-                    placeholder='Enter zipcode..'
+                    placeholder= {zipcodePlaceholder}
                     name='zipcode'
+                    ref={zipcodeRef}
                 />
-                <Link to='/current'><button onClick={handelClick}>ENTER</button></Link>
+                <button onClick={handelClick}>ENTER</button>
             </div>
             <div className='currentLocation'>
                 <Checkbox
