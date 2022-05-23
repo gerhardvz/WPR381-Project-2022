@@ -18,17 +18,28 @@ exports.getWeather= async (req,res,next)=>{
             res.status(code).json({message})
         }
 
+        //Unpacking weather data to select needed data
+        const weatherDataTransform=(DATA)=>{
+           const {weather, main, wind,name}=DATA
+           const {id, description,icon}=weather[0]
+           const {temp, humidity}=main
+           const {speed}=wind
+           
+           res.json({id, description, icon, temp, humidity, speed, name})
+
+        }
+
 
     
         if(params["lat"] && params["lon"]){
             getWeatherFromCoordinates(params).then(data => {
-                res.json(JSON.parse(data.body))
+                weatherDataTransform(JSON.parse(data.body))
             })
             .catch(exceptionCord)
         }
         else if(params["zip"]){
             getWeatherFromZipCode(params).then(data=>{
-                res.json(JSON.parse(data.body))
+                weatherDataTransform(JSON.parse(data.body))
             })
             .catch(exceptionZip)
         }
