@@ -61,16 +61,13 @@ function getWeatherFromCode(weatherCodeid,isDay,nextFunction){
 
     var WeatherCode = weatherCodes.find((value, index, obj) => {
         //Needs type casting as id is saved as number and received as string
-        if (value.id==weatherCodeid){
-
-            return true
-        }
-        return false
+        return value.id==weatherCodeid
     })
 
-    if (WeatherCode===undefined){
-        nextFunction(new Error("WeatherCode doesn't exist"),null)
-        return
+    if (!WeatherCode){
+        
+        return nextFunction(new Error("WeatherCode doesn't exist"),null)
+       
     }
     let iconURL = ("https://openweathermap.org/img/wn/"+((WeatherCode.icon < 10 ? '0' : '') + WeatherCode.icon)+(isDay===true?'d':'n')+".png")
     nextFunction(null,{group:WeatherCode.group ,description:WeatherCode.description ,iconURL:iconURL})

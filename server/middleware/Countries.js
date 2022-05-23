@@ -257,10 +257,10 @@ var countries = [
 function getCountryCodeByName(name){
 
     var countryObj = countries.find((value, index, obj) => {
-        if (value.name===name){
-            return true
-        }
+        return value.name===name
     })
+    //sends null obj if could not find country
+    if(!countryObj){return null}
     return {alpha2:countryObj.alpha2}
 
 }
