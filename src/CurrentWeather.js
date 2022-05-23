@@ -33,11 +33,14 @@ const CurrentWeather = () => {
 
            const reply = await fetch(url)
             const jsonReply = await reply.json()
-            console.log(jsonReply)
-        }
 
+            return(jsonReply)
+        }
+        alert("No location data passed through")
+
+        return {}
     }
-    fetchData()
+    const WeatherObj = fetchData()
 
 
     
