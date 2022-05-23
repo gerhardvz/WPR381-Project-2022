@@ -1,4 +1,6 @@
 const request = require("request")
+const weather = require("../middleware/Weather");
+const {response} = require("express");
 
 
 
@@ -9,32 +11,36 @@ exports.getWeather= async (req,res,next)=>{
 
         var params = req.query
 
-        console.log(params)
-
-        const exceptionCord = ({message, code}) => {
-            res.status(code).json({message})
-        }
-        const exceptionZip=({message, code})=>{
-            res.status(code).json({message})
-        }
-
-
-    
         if(params["lat"] && params["lon"]){
             getWeatherFromCoordinates(params).then(data => {
-                res.json(JSON.parse(data.body))
+                formatData(JSON.parse(data.body),(err,response)=>{
+                    if (err!=null){
+                        res.statusCode(500).send({err:err})
+                    }
+                    res.send((response))
+                })
+
             })
-            .catch(exceptionCord)
+            .catch(er=>{
+                res.status(500).send({err:er})
+            })
         }
         else if(params["zip"]){
             getWeatherFromZipCode(params).then(data=>{
-                res.json(JSON.parse(data.body))
+                formatData(JSON.parse(data.body),(err,response)=>{
+                    if (err!=null){
+                        res.statusCode(500).send({err:err})
+                    }
+                    res.send((response))
+                })
             })
-            .catch(exceptionZip)
+            .catch(er=> {
+                res.status(500).send({err:er})
+            })
         }
         else {
             // res.sendStatus(418)
-           res.status(400).json('Expected param zip | [lon, lat]')
+           res.status(400).send({mesg:'Expected param zip | [lon, lat]'})
             
         }
         
@@ -69,7 +75,7 @@ function getWeatherFromZipCode(params){
         console.log(options)
         request(options,(err,data)=>{
             if(err){
-                return nay({message: err, code:data.cod})
+                return nay({err: err})
             }
             return yay(data)
     })
@@ -97,11 +103,32 @@ function getWeatherFromCoordinates(params){
         console.log(options)
         request(options,(err, data) => {
             if(err) {
-                return nay({message: err, code: data.cod})
+                return nay({err: err})
             }
             yay(data)
         })
     })
+}
+
+function formatData(data,callback){
+
+    var id = data.weather[0].id
+
+    var hr = (new Date()).getHours();
+    var isDayTime = false;
+    if (hr>6&&hr<18)
+        isDayTime =true;
+    weather.getWeatherFromCode(id,isDayTime,(err,Weatherdata)=>
+    {
+        if (err!=null){
+            callback(err,null)
+            return
+        }
+        var result={temp:data.main,city:data.name,info:Weatherdata}
+        callback(null,result)
+    })
+
+
 }
 
 //gets WeatherObj and pass to callback statement
