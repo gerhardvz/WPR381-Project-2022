@@ -2,23 +2,28 @@
 import {Link, useHistory} from 'react-router-dom';
 import React, {useState, useEffect, useRef} from 'react';
 
-const Home = () => {
+
+const Home = (props) => {
     const [zipcode, setZipcode] = useState();
     const zipcodeRef = useRef()
+    const history = useHistory();
+
+    useEffect(()=>{
+        if (zipcode != null) {
+            history.push('/current',
+                { userZipcode : zipcode }
+            )
+        }
+    },[zipcode])
 
     const [zipcodePlaceholder, setPlaceholder] = useState('Enter zipcode...');
-    const history = useHistory();
-    const handelClick = () => {
+
+    const  handelClick = () => {
         const userZipcode = zipcodeRef.current.value;
 
         //Checks if zipcode is 4 characters long, and is only decimals
         if(/^([0-9]){4,4}$/.test(userZipcode)){
             setZipcode(userZipcode)
-            history.push({
-                pathname: '/current',
-                state: { test : zipcode }
-              })
-
         }else{
             setPlaceholder(`'${userZipcode}' is an invalid zipcode...`);
         }
