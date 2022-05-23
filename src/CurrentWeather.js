@@ -1,7 +1,30 @@
 import * as React from 'react';
-import {Link} from 'react-router-dom';
+import {Link, useLocation} from 'react-router-dom';
 
 const CurrentWeather = () => {
+
+    const location = useLocation();
+
+    // This is how you can get the zipcode:
+    // location.state.userZipcode
+
+    // Example method of getting data from API, and sending data:
+    const fetchData = async ()=>{
+        const reply = await fetch('/api',{
+            method: "POST",
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({clientData: "World"})
+        })
+        const jsonReply = await reply.json()
+
+        //Look in the browser console to see the results!
+        console.log(jsonReply);
+    }
+    fetchData()
+
     const [checked, setChecked] = React.useState(false);
     
     const handleChange = () => {
